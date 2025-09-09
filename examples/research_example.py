@@ -5,26 +5,47 @@ Demonstrates how to use the research team for information gathering
 """
 
 import os
-from dotenv import load_dotenv
+import sys
+from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    print("Note: python-dotenv not installed. Using environment variables directly.")
+
 from multi_agent_rag import MultiAgentRAGSystem
 
 def main():
     """Demonstrate research capabilities of the multi-agent system."""
-    # Load environment variables
-    load_dotenv()
     
     # Get API keys from environment or prompt user
     openai_key = os.getenv("OPENAI_API_KEY")
     tavily_key = os.getenv("TAVILY_API_KEY")
     
+    if not openai_key:
+        print("Please set OPENAI_API_KEY environment variable or in .env file")
+        openai_key = input("Enter OpenAI API Key: ").strip()
+    
+    if not tavily_key:
+        print("Please set TAVILY_API_KEY environment variable or in .env file")
+        tavily_key = input("Enter Tavily API Key: ").strip()
+    
     if not openai_key or not tavily_key:
-        print("Please set OPENAI_API_KEY and TAVILY_API_KEY in your .env file")
+        print("Both API keys are required!")
         return
     
     # Initialize the system
     print("Initializing Multi-Agent RAG System...")
-    system = MultiAgentRAGSystem(openai_key, tavily_key)
-    print("System initialized successfully!")
+    try:
+        system = MultiAgentRAGSystem(openai_key, tavily_key)
+        print("System initialized successfully!")
+    except Exception as e:
+        print(f"Failed to initialize system: {e}")
+        return
     
     # Example 1: Academic paper research
     print("\n" + "="*60)
@@ -40,14 +61,18 @@ def main():
     print(f"Query: {research_query1}")
     print("\nProcessing...")
     
-    results1 = system.research_only(research_query1)
-    
-    for step in results1:
-        if "messages" in step.values().__iter__().__next__():
-            agent_name = list(step.keys())[0]
-            if agent_name != "supervisor":
-                message = step[agent_name]["messages"][0]
-                print(f"\n[{agent_name}]: {message.content[:500]}...")
+    try:
+        results1 = system.research_only(research_query1)
+        
+        for step in results1:
+            if isinstance(step, dict) and any(isinstance(v, dict) and "messages" in v for v in step.values()):
+                agent_name = list(step.keys())[0]
+                if agent_name != "supervisor" and "messages" in step[agent_name]:
+                    message = step[agent_name]["messages"][0]
+                    content = message.content if hasattr(message, 'content') else str(message)
+                    print(f"\n[{agent_name}]: {content[:500]}...")
+    except Exception as e:
+        print(f"Error in research query 1: {e}")
     
     # Example 2: Current technology trends
     print("\n" + "="*60)
@@ -62,14 +87,18 @@ def main():
     print(f"Query: {research_query2}")
     print("\nProcessing...")
     
-    results2 = system.research_only(research_query2)
-    
-    for step in results2:
-        if "messages" in step.values().__iter__().__next__():
-            agent_name = list(step.keys())[0]
-            if agent_name != "supervisor":
-                message = step[agent_name]["messages"][0]
-                print(f"\n[{agent_name}]: {message.content[:500]}...")
+    try:
+        results2 = system.research_only(research_query2)
+        
+        for step in results2:
+            if isinstance(step, dict) and any(isinstance(v, dict) and "messages" in v for v in step.values()):
+                agent_name = list(step.keys())[0]
+                if agent_name != "supervisor" and "messages" in step[agent_name]:
+                    message = step[agent_name]["messages"][0]
+                    content = message.content if hasattr(message, 'content') else str(message)
+                    print(f"\n[{agent_name}]: {content[:500]}...")
+    except Exception as e:
+        print(f"Error in research query 2: {e}")
     
     # Example 3: Comparative analysis
     print("\n" + "="*60)
@@ -84,14 +113,18 @@ def main():
     print(f"Query: {research_query3}")
     print("\nProcessing...")
     
-    results3 = system.research_only(research_query3)
-    
-    for step in results3:
-        if "messages" in step.values().__iter__().__next__():
-            agent_name = list(step.keys())[0]
-            if agent_name != "supervisor":
-                message = step[agent_name]["messages"][0]
-                print(f"\n[{agent_name}]: {message.content[:500]}...")
+    try:
+        results3 = system.research_only(research_query3)
+        
+        for step in results3:
+            if isinstance(step, dict) and any(isinstance(v, dict) and "messages" in v for v in step.values()):
+                agent_name = list(step.keys())[0]
+                if agent_name != "supervisor" and "messages" in step[agent_name]:
+                    message = step[agent_name]["messages"][0]
+                    content = message.content if hasattr(message, 'content') else str(message)
+                    print(f"\n[{agent_name}]: {content[:500]}...")
+    except Exception as e:
+        print(f"Error in research query 3: {e}")
     
     print("\n" + "="*60)
     print("Research Examples Complete!")
