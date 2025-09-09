@@ -8,7 +8,7 @@ langchain-core>=0.1.0
 
 # Vector store and search
 qdrant-client>=1.7.0
-tavily-python>=0.3.0
+tavily-client>=0.3.0
 
 # Document processing
 pymupdf>=1.23.0
